@@ -2,22 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Todo App</title>
-
-    <!-- Bootstrap 5 (CDN) -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    />
-    <!-- Font Awesome (for icons) -->
-    <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> My Todos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* ── Custom Styles ── */
         body {
             background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
             min-height: 100vh;
@@ -26,7 +15,6 @@
             align-items: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         .todo-container {
             background: #ffffff;
             border-radius: 20px;
@@ -36,17 +24,36 @@
             width: 100%;
             margin: 1.5rem;
         }
-
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
         h1 {
             font-weight: 700;
             color: #2c3e50;
             font-size: 2.2rem;
+            margin: 0;
         }
-
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+            color: white;
+        }
         .input-group {
             margin-bottom: 1.8rem;
         }
-
         .input-group input {
             border-radius: 30px 0 0 30px;
             border: 2px solid #dee2e6;
@@ -54,12 +61,10 @@
             font-size: 1rem;
             transition: border-color 0.2s;
         }
-
         .input-group input:focus {
             border-color: #6c63ff;
             box-shadow: none;
         }
-
         .input-group button {
             border-radius: 0 30px 30px 0;
             background: #6c63ff;
@@ -69,12 +74,10 @@
             font-weight: 600;
             transition: background 0.2s;
         }
-
         .input-group button:hover {
             background: #5a52d5;
         }
 
-        /* ── Todo List ── */
         .todo-item {
             background: #f8f9fa;
             border-radius: 12px;
@@ -86,11 +89,9 @@
             transition: background 0.15s;
             border-left: 5px solid #6c63ff;
         }
-
         .todo-item:hover {
             background: #f1f2f6;
         }
-
         .todo-text {
             flex: 1;
             font-size: 1.05rem;
@@ -98,11 +99,9 @@
             word-break: break-word;
             margin-right: 1rem;
         }
-
         .todo-text.editing {
             display: none;
         }
-
         .todo-edit-input {
             flex: 1;
             display: none;
@@ -113,17 +112,14 @@
             margin-right: 0.8rem;
             outline: none;
         }
-
         .todo-edit-input.active {
             display: block;
         }
-
         .todo-actions {
             display: flex;
             gap: 0.4rem;
             flex-shrink: 0;
         }
-
         .todo-actions button {
             border: none;
             background: transparent;
@@ -133,43 +129,34 @@
             transition: background 0.15s;
             color: #6c757d;
         }
-
         .todo-actions button:hover {
             background: #e9ecef;
         }
-
         .todo-actions .btn-edit:hover {
             color: #6c63ff;
         }
-
         .todo-actions .btn-delete:hover {
             color: #dc3545;
         }
-
         .todo-actions .btn-save {
             color: #28a745;
             font-weight: 600;
         }
-
         .todo-actions .btn-save:hover {
             background: #d4edda;
         }
-
         .todo-actions .btn-cancel {
             color: #6c757d;
         }
-
         .todo-actions .btn-cancel:hover {
             background: #e2e6ea;
         }
-
         .empty-message {
             text-align: center;
             color: #adb5bd;
             font-size: 1.1rem;
             padding: 2rem 0;
         }
-
         .counter {
             margin-top: 1.2rem;
             font-size: 0.95rem;
@@ -177,10 +164,17 @@
             text-align: center;
         }
 
-        /* ── Responsive ── */
         @media (max-width: 480px) {
             .todo-container {
                 padding: 1.5rem 1rem;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.8rem;
+            }
+            .logout-btn {
+                text-align: center;
             }
             .todo-item {
                 flex-wrap: wrap;
@@ -196,63 +190,112 @@
 <body>
 
     <div class="todo-container">
-        <h1 class="text-center mb-4">📝 My Todo List</h1>
+        <!-- ─── Header with Logout ─── -->
+        <div class="header">
+            <h1>📝 My Todos</h1>
+            <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
 
-        <!-- Add Todo Form -->
+        <!-- ─── Add Todo Form ─── -->
         <div class="input-group">
-            <input
-                type="text"
-                id="todoInput"
-                class="form-control"
-                placeholder="What do you need to do?"
-                autofocus
-            />
+            <input type="text" id="todoInput" class="form-control" placeholder="What do you need to do?" autofocus />
             <button id="addBtn" class="btn">Add</button>
         </div>
 
-        <!-- Todo List -->
+        <!-- ─── Todo List ─── -->
         <div id="todoList"></div>
 
-        <!-- Counter -->
+        <!-- ─── Counter ─── -->
         <div id="counter" class="counter"></div>
     </div>
 
-    <!-- ─── JavaScript ─── -->
     <script>
         // ── Constants ──
-        const STORAGE_KEY = 'todos';
-
-        // ── DOM References ──
         const todoListEl = document.getElementById('todoList');
         const todoInput = document.getElementById('todoInput');
         const addBtn = document.getElementById('addBtn');
         const counterEl = document.getElementById('counter');
 
-        // ── State ──
         let todos = [];
-        let editingId = null; // ID of the todo currently being edited
+        let editingId = null;
 
-        // ── Load from localStorage ──
-        function loadTodos() {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) {
-                try {
-                    todos = JSON.parse(stored);
-                } catch (e) {
-                    todos = [];
-                }
-            } else {
-                todos = [];
+        // ── API Calls ──
+
+        async function loadTodos() {
+            try {
+                const res = await fetch('/api/todos');
+                if (!res.ok) throw new Error('Failed to fetch todos');
+                todos = await res.json();
+                render();
+            } catch (error) {
+                console.error('Error loading todos:', error);
+                alert('Could not load todos. Please refresh the page.');
             }
-            render();
         }
 
-        // ── Save to localStorage ──
-        function saveTodos() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+        async function addTodo() {
+            const text = todoInput.value.trim();
+            if (!text) {
+                alert('Please enter a task.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                if (!res.ok) throw new Error('Failed to add todo');
+                const newTodo = await res.json();
+                todos.push(newTodo);
+                todoInput.value = '';
+                todoInput.focus();
+                render();
+            } catch (error) {
+                console.error('Error adding todo:', error);
+                alert('Could not add todo. Please try again.');
+            }
         }
 
-        // ── Render the todo list ──
+        async function deleteTodo(id) {
+            if (!confirm('Delete this todo?')) return;
+
+            try {
+                const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Failed to delete todo');
+                todos = todos.filter(t => t.id !== id);
+                if (editingId === id) editingId = null;
+                render();
+            } catch (error) {
+                console.error('Error deleting todo:', error);
+                alert('Could not delete todo. Please try again.');
+            }
+        }
+
+        async function saveEdit(id, newText) {
+            try {
+                const res = await fetch(`/api/todos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: newText })
+                });
+                if (!res.ok) throw new Error('Failed to update todo');
+                const updated = await res.json();
+                const todo = todos.find(t => t.id === id);
+                if (todo) todo.text = updated.text;
+                editingId = null;
+                render();
+            } catch (error) {
+                console.error('Error updating todo:', error);
+                alert('Could not update todo. Please try again.');
+            }
+        }
+
+        // ── Render ──
+
         function render() {
             if (todos.length === 0) {
                 todoListEl.innerHTML = `<div class="empty-message">✨ No todos yet. Add one above!</div>`;
@@ -263,10 +306,11 @@
             let html = '';
             todos.forEach(todo => {
                 const isEditing = (editingId === todo.id);
+                const safeText = escapeHtml(todo.text);
                 html += `
                     <div class="todo-item" data-id="${todo.id}">
-                        <span class="todo-text ${isEditing ? 'editing' : ''}">${escapeHtml(todo.text)}</span>
-                        <input type="text" class="todo-edit-input ${isEditing ? 'active' : ''}" value="${escapeHtml(todo.text)}" data-id="${todo.id}" />
+                        <span class="todo-text ${isEditing ? 'editing' : ''}">${safeText}</span>
+                        <input type="text" class="todo-edit-input ${isEditing ? 'active' : ''}" value="${safeText}" data-id="${todo.id}" />
                         <div class="todo-actions">
                             ${isEditing ? `
                                 <button class="btn-save" data-id="${todo.id}"><i class="fas fa-check"></i> Save</button>
@@ -319,7 +363,6 @@
                 });
             });
 
-            // Enter key on edit inputs
             document.querySelectorAll('.todo-edit-input').forEach(input => {
                 input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
@@ -337,42 +380,9 @@
             });
         }
 
-        // ── CRUD Operations ──
-
-        // Add
-        function addTodo() {
-            const text = todoInput.value.trim();
-            if (!text) {
-                alert('Please enter a task.');
-                return;
-            }
-
-            const newTodo = {
-                id: Date.now(),
-                text: text,
-            };
-
-            todos.push(newTodo);
-            saveTodos();
-            todoInput.value = '';
-            todoInput.focus();
-            render();
-        }
-
-        // Delete
-        function deleteTodo(id) {
-            if (!confirm('Delete this todo?')) return;
-            todos = todos.filter(t => t.id !== id);
-            if (editingId === id) editingId = null;
-            saveTodos();
-            render();
-        }
-
-        // Start editing
         function startEditing(id) {
             editingId = id;
             render();
-            // Auto-focus the edit input
             const input = document.querySelector(`.todo-edit-input[data-id="${id}"]`);
             if (input) {
                 input.focus();
@@ -380,24 +390,12 @@
             }
         }
 
-        // Save edit
-        function saveEdit(id, newText) {
-            const todo = todos.find(t => t.id === id);
-            if (todo) {
-                todo.text = newText;
-                saveTodos();
-            }
-            editingId = null;
-            render();
-        }
-
-        // Cancel editing
         function cancelEditing() {
             editingId = null;
             render();
         }
 
-        // ── Helper: Escape HTML (prevent XSS) ──
+        // ── Helper: Escape HTML ──
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
@@ -417,9 +415,6 @@
         loadTodos();
     </script>
 
-    <!-- Bootstrap JS (optional, for toggle behaviors if needed) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js">
-    </script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
