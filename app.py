@@ -27,7 +27,6 @@ def index():
     return render_template('index.html')
 
 
-<<<<<<< HEAD
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -146,16 +145,11 @@ def delete_todo(todo_id):
     db.session.commit()
     return jsonify({'message': 'Todo deleted'}), 200
 
-app.app_context().push()
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True, host='0.0.0.0', port=5000)
 
+
  
-=======
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
-    
->>>>>>> 76f63f3e99027ca550e93a60b2ad3799fa3a7757
