@@ -33,10 +33,9 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 @app.route('/')
-@app.route('/index')
+@login_required
 def index():
-    if current_user.is_authenticated:
-        return render_template('index.html')
+    return render_template('index.html')
     
 
 
