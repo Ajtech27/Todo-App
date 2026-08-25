@@ -37,8 +37,7 @@ def load_user(user_id):
 def index():
     if current_user.is_authenticated:
         return render_template('index.html')
-    else:
-        return redirect(url_for('register'))
+    
 
 
 @app.route('/register', methods=['GET', 'POST'])
