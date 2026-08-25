@@ -4,9 +4,11 @@ from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate   
 from model import db, User, Todo
 import os
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+CORS(app, origins=['https://aj-todo-app.vercel.app/'], supports_credentials=True)
 
 # Use PostgreSQL in production, SQLite locally
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')
@@ -155,10 +157,19 @@ def delete_todo(todo_id):
     return jsonify({'message': 'Todo deleted'}), 200
 
 
+
+
+with app.app_context():
+    db.create_all()
+    print("✅ Database tables created successfully!")
+
 if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
+""" if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)"""
 
 
  
