@@ -8,7 +8,9 @@ from flask_cors import CORS
 
 
 app = Flask(__name__)
-CORS(app, origins=['https://aj-todo-app.vercel.app/'], supports_credentials=True)
+CORS(app, origins=['https://aj-todo-app.vercel.app/'], supports_credentials=True,
+     allow_headers=['Content-Type', 'Authorization'],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 
 # Use PostgreSQL in production, SQLite locally
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')
