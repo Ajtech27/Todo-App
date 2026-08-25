@@ -3,9 +3,18 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate   
 from model import db, User, Todo
+import os
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///todo.db'
+
+# Use PostgreSQL in production, SQLite locally
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///todo.db')
+# Render's DATABASE_URL starts with 'postgres://', but SQLAlchemy needs 'postgresql://'
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SECRET_KEY'] = '730ffe548b3488c608a32513'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
