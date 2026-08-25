@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> My Todos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .todo-container {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            padding: 2.5rem 2rem;
+            max-width: 700px;
+            width: 100%;
+            margin: 1.5rem;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin: 0;
+        }
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #c82333;
+            color: white;
+        }
+        .input-group {
+            margin-bottom: 1.8rem;
+        }
+        .input-group input {
+            border-radius: 30px 0 0 30px;
+            border: 2px solid #dee2e6;
+            padding: 0.75rem 1.2rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #6c63ff;
+            box-shadow: none;
+        }
+        .input-group button {
+            border-radius: 0 30px 30px 0;
+            background: #6c63ff;
+            color: white;
+            border: none;
+            padding: 0 1.8rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .input-group button:hover {
+            background: #5a52d5;
+        }
+
+        .todo-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 0.9rem 1.2rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.15s;
+            border-left: 5px solid #6c63ff;
+        }
+        .todo-item:hover {
+            background: #f1f2f6;
+        }
+        .todo-text {
+            flex: 1;
+            font-size: 1.05rem;
+            color: #2c3e50;
+            word-break: break-word;
+            margin-right: 1rem;
+        }
+        .todo-text.editing {
+            display: none;
+        }
+        .todo-edit-input {
+            flex: 1;
+            display: none;
+            border: 2px solid #6c63ff;
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            font-size: 1rem;
+            margin-right: 0.8rem;
+            outline: none;
+        }
+        .todo-edit-input.active {
+            display: block;
+        }
+        .todo-actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-shrink: 0;
+        }
+        .todo-actions button {
+            border: none;
+            background: transparent;
+            font-size: 1.1rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 8px;
+            transition: background 0.15s;
+            color: #6c757d;
+        }
+        .todo-actions button:hover {
+            background: #e9ecef;
+        }
+        .todo-actions .btn-edit:hover {
+            color: #6c63ff;
+        }
+        .todo-actions .btn-delete:hover {
+            color: #dc3545;
+        }
+        .todo-actions .btn-save {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .todo-actions .btn-save:hover {
+            background: #d4edda;
+        }
+        .todo-actions .btn-cancel {
+            color: #6c757d;
+        }
+        .todo-actions .btn-cancel:hover {
+            background: #e2e6ea;
+        }
+        .empty-message {
+            text-align: center;
+            color: #adb5bd;
+            font-size: 1.1rem;
+            padding: 2rem 0;
+        }
+        .counter {
+            margin-top: 1.2rem;
+            font-size: 0.95rem;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .todo-container {
+                padding: 1.5rem 1rem;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.8rem;
+            }
+            .logout-btn {
+                text-align: center;
+            }
+            .todo-item {
+                flex-wrap: wrap;
+            }
+            .todo-actions {
+                margin-top: 0.4rem;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="todo-container">
+        <!-- ─── Header with Logout ─── -->
+        <div class="header">
+            <h1>📝 My Todos</h1>
+            <a href="https://todo-app-ksl3.onrender.com/logout" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <!-- <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a> -->
+        </div>
+
+        <!-- ─── Add Todo Form ─── -->
+        <div class="input-group">
+            <input type="text" id="todoInput" class="form-control" placeholder="What do you need to do?" autofocus />
+            <button id="addBtn" class="btn">Add</button>
+        </div>
+
+        <!-- ─── Todo List ─── -->
+        <div id="todoList"></div>
+
+        <!-- ─── Counter ─── -->
+        <div id="counter" class="counter"></div>
+    </div>
+
+    <script>
+    // ── Constants ──
+    const API_BASE_URL = 'https://todo-app-ksl3.onrender.com';  
+    const todoListEl = document.getElementById('todoList');
+    const todoInput = document.getElementById('todoInput');
+    const addBtn = document.getElementById('addBtn');
+    const counterEl = document.getElementById('counter');
+
+    let todos = [];
+    let editingId = null;
+
+    // ── API Calls ──
+
+    async function loadTodos() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/todos`);
+            if (!res.ok) throw new Error('Failed to fetch todos');
+            todos = await res.json();
+            render();
+        } catch (error) {
+            console.error('Error loading todos:', error);
+            alert('Could not load todos. Please refresh the page.');
+        }
+    }
+
+    async function addTodo() {
+        const text = todoInput.value.trim();
+        if (!text) {
+            alert('Please enter a task.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/todos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            if (!res.ok) throw new Error('Failed to add todo');
+            const newTodo = await res.json();
+            todos.push(newTodo);
+            todoInput.value = '';
+            todoInput.focus();
+            render();
+        } catch (error) {
+            console.error('Error adding todo:', error);
+            alert('Could not add todo. Please try again.');
+        }
+    }
+
+    async function deleteTodo(id) {
+        if (!confirm('Delete this todo?')) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/todos/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete todo');
+            todos = todos.filter(t => t.id !== id);
+            if (editingId === id) editingId = null;
+            render();
+        } catch (error) {
+            console.error('Error deleting todo:', error);
+            alert('Could not delete todo. Please try again.');
+        }
+    }
+
+    async function saveEdit(id, newText) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/todos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: newText })
+            });
+            if (!res.ok) throw new Error('Failed to update todo');
+            const updated = await res.json();
+            const todo = todos.find(t => t.id === id);
+            if (todo) todo.text = updated.text;
+            editingId = null;
+            render();
+        } catch (error) {
+            console.error('Error updating todo:', error);
+            alert('Could not update todo. Please try again.');
+        }
+    }
+
+    // ── Render ──
+
+    function render() {
+        if (todos.length === 0) {
+            todoListEl.innerHTML = `<div class="empty-message">✨ No todos yet. Add one above!</div>`;
+            counterEl.textContent = '0 items';
+            return;
+        }
+
+        let html = '';
+        todos.forEach(todo => {
+            const isEditing = (editingId === todo.id);
+            const safeText = escapeHtml(todo.text);
+            html += `
+                <div class="todo-item" data-id="${todo.id}">
+                    <span class="todo-text ${isEditing ? 'editing' : ''}">${safeText}</span>
+                    <input type="text" class="todo-edit-input ${isEditing ? 'active' : ''}" value="${safeText}" data-id="${todo.id}" />
+                    <div class="todo-actions">
+                        ${isEditing ? `
+                            <button class="btn-save" data-id="${todo.id}"><i class="fas fa-check"></i> Save</button>
+                            <button class="btn-cancel" data-id="${todo.id}"><i class="fas fa-times"></i></button>
+                        ` : `
+                            <button class="btn-edit" data-id="${todo.id}"><i class="fas fa-pen"></i></button>
+                            <button class="btn-delete" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
+                        `}
+                    </div>
+                </div>
+            `;
+        });
+
+        todoListEl.innerHTML = html;
+        counterEl.textContent = `${todos.length} item${todos.length !== 1 ? 's' : ''}`;
+
+        // ── Attach event listeners ──
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                deleteTodo(id);
+            });
+        });
+
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                startEditing(id);
+            });
+        });
+
+        document.querySelectorAll('.btn-save').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                const input = document.querySelector(`.todo-edit-input[data-id="${id}"]`);
+                if (input) {
+                    const newText = input.value.trim();
+                    if (newText) {
+                        saveEdit(id, newText);
+                    } else {
+                        alert('Todo text cannot be empty.');
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-cancel').forEach(btn => {
+            btn.addEventListener('click', () => {
+                cancelEditing();
+            });
+        });
+
+        document.querySelectorAll('.todo-edit-input').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const id = parseInt(input.dataset.id);
+                    const newText = input.value.trim();
+                    if (newText) {
+                        saveEdit(id, newText);
+                    } else {
+                        alert('Todo text cannot be empty.');
+                    }
+                } else if (e.key === 'Escape') {
+                    cancelEditing();
+                }
+            });
+        });
+    }
+
+    function startEditing(id) {
+        editingId = id;
+        render();
+        const input = document.querySelector(`.todo-edit-input[data-id="${id}"]`);
+        if (input) {
+            input.focus();
+            input.select();
+        }
+    }
+
+    function cancelEditing() {
+        editingId = null;
+        render();
+    }
+
+    // ── Helper: Escape HTML ──
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ── Event Listeners ──
+    addBtn.addEventListener('click', addTodo);
+    todoInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTodo();
+        }
+    });
+
+    // ── Initial Load ──
+    loadTodos();
+</script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
