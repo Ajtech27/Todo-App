@@ -193,9 +193,12 @@
         <!-- ─── Header with Logout ─── -->
         <div class="header">
             <h1>📝 My Todos</h1>
-            <a href="{{ url_for('logout') }}" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Logout
+            <a href="https://todo-app-ksl3.onrender.com/logout" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
             </a>
+            <!-- <a href="{{ url_for('logout') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a> -->
         </div>
 
         <!-- ─── Add Todo Form ─── -->
@@ -212,208 +215,209 @@
     </div>
 
     <script>
-        // ── Constants ──
-        const todoListEl = document.getElementById('todoList');
-        const todoInput = document.getElementById('todoInput');
-        const addBtn = document.getElementById('addBtn');
-        const counterEl = document.getElementById('counter');
+    // ── Constants ──
+    const API_BASE_URL = 'https://todo-app-ksl3.onrender.com';  
+    const todoListEl = document.getElementById('todoList');
+    const todoInput = document.getElementById('todoInput');
+    const addBtn = document.getElementById('addBtn');
+    const counterEl = document.getElementById('counter');
 
-        let todos = [];
-        let editingId = null;
+    let todos = [];
+    let editingId = null;
 
-        // ── API Calls ──
+    // ── API Calls ──
 
-        async function loadTodos() {
-            try {
-                const res = await fetch('/api/todos');
-                if (!res.ok) throw new Error('Failed to fetch todos');
-                todos = await res.json();
-                render();
-            } catch (error) {
-                console.error('Error loading todos:', error);
-                alert('Could not load todos. Please refresh the page.');
-            }
-        }
-
-        async function addTodo() {
-            const text = todoInput.value.trim();
-            if (!text) {
-                alert('Please enter a task.');
-                return;
-            }
-
-            try {
-                const res = await fetch('/api/todos', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text })
-                });
-                if (!res.ok) throw new Error('Failed to add todo');
-                const newTodo = await res.json();
-                todos.push(newTodo);
-                todoInput.value = '';
-                todoInput.focus();
-                render();
-            } catch (error) {
-                console.error('Error adding todo:', error);
-                alert('Could not add todo. Please try again.');
-            }
-        }
-
-        async function deleteTodo(id) {
-            if (!confirm('Delete this todo?')) return;
-
-            try {
-                const res = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
-                if (!res.ok) throw new Error('Failed to delete todo');
-                todos = todos.filter(t => t.id !== id);
-                if (editingId === id) editingId = null;
-                render();
-            } catch (error) {
-                console.error('Error deleting todo:', error);
-                alert('Could not delete todo. Please try again.');
-            }
-        }
-
-        async function saveEdit(id, newText) {
-            try {
-                const res = await fetch(`/api/todos/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: newText })
-                });
-                if (!res.ok) throw new Error('Failed to update todo');
-                const updated = await res.json();
-                const todo = todos.find(t => t.id === id);
-                if (todo) todo.text = updated.text;
-                editingId = null;
-                render();
-            } catch (error) {
-                console.error('Error updating todo:', error);
-                alert('Could not update todo. Please try again.');
-            }
-        }
-
-        // ── Render ──
-
-        function render() {
-            if (todos.length === 0) {
-                todoListEl.innerHTML = `<div class="empty-message">✨ No todos yet. Add one above!</div>`;
-                counterEl.textContent = '0 items';
-                return;
-            }
-
-            let html = '';
-            todos.forEach(todo => {
-                const isEditing = (editingId === todo.id);
-                const safeText = escapeHtml(todo.text);
-                html += `
-                    <div class="todo-item" data-id="${todo.id}">
-                        <span class="todo-text ${isEditing ? 'editing' : ''}">${safeText}</span>
-                        <input type="text" class="todo-edit-input ${isEditing ? 'active' : ''}" value="${safeText}" data-id="${todo.id}" />
-                        <div class="todo-actions">
-                            ${isEditing ? `
-                                <button class="btn-save" data-id="${todo.id}"><i class="fas fa-check"></i> Save</button>
-                                <button class="btn-cancel" data-id="${todo.id}"><i class="fas fa-times"></i></button>
-                            ` : `
-                                <button class="btn-edit" data-id="${todo.id}"><i class="fas fa-pen"></i></button>
-                                <button class="btn-delete" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
-                            `}
-                        </div>
-                    </div>
-                `;
-            });
-
-            todoListEl.innerHTML = html;
-            counterEl.textContent = `${todos.length} item${todos.length !== 1 ? 's' : ''}`;
-
-            // ── Attach event listeners ──
-            document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = parseInt(btn.dataset.id);
-                    deleteTodo(id);
-                });
-            });
-
-            document.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = parseInt(btn.dataset.id);
-                    startEditing(id);
-                });
-            });
-
-            document.querySelectorAll('.btn-save').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const id = parseInt(btn.dataset.id);
-                    const input = document.querySelector(`.todo-edit-input[data-id="${id}"]`);
-                    if (input) {
-                        const newText = input.value.trim();
-                        if (newText) {
-                            saveEdit(id, newText);
-                        } else {
-                            alert('Todo text cannot be empty.');
-                        }
-                    }
-                });
-            });
-
-            document.querySelectorAll('.btn-cancel').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    cancelEditing();
-                });
-            });
-
-            document.querySelectorAll('.todo-edit-input').forEach(input => {
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        const id = parseInt(input.dataset.id);
-                        const newText = input.value.trim();
-                        if (newText) {
-                            saveEdit(id, newText);
-                        } else {
-                            alert('Todo text cannot be empty.');
-                        }
-                    } else if (e.key === 'Escape') {
-                        cancelEditing();
-                    }
-                });
-            });
-        }
-
-        function startEditing(id) {
-            editingId = id;
+    async function loadTodos() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/todos`);
+            if (!res.ok) throw new Error('Failed to fetch todos');
+            todos = await res.json();
             render();
-            const input = document.querySelector(`.todo-edit-input[data-id="${id}"]`);
-            if (input) {
-                input.focus();
-                input.select();
-            }
+        } catch (error) {
+            console.error('Error loading todos:', error);
+            alert('Could not load todos. Please refresh the page.');
+        }
+    }
+
+    async function addTodo() {
+        const text = todoInput.value.trim();
+        if (!text) {
+            alert('Please enter a task.');
+            return;
         }
 
-        function cancelEditing() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/todos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            if (!res.ok) throw new Error('Failed to add todo');
+            const newTodo = await res.json();
+            todos.push(newTodo);
+            todoInput.value = '';
+            todoInput.focus();
+            render();
+        } catch (error) {
+            console.error('Error adding todo:', error);
+            alert('Could not add todo. Please try again.');
+        }
+    }
+
+    async function deleteTodo(id) {
+        if (!confirm('Delete this todo?')) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/todos/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error('Failed to delete todo');
+            todos = todos.filter(t => t.id !== id);
+            if (editingId === id) editingId = null;
+            render();
+        } catch (error) {
+            console.error('Error deleting todo:', error);
+            alert('Could not delete todo. Please try again.');
+        }
+    }
+
+    async function saveEdit(id, newText) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/todos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: newText })
+            });
+            if (!res.ok) throw new Error('Failed to update todo');
+            const updated = await res.json();
+            const todo = todos.find(t => t.id === id);
+            if (todo) todo.text = updated.text;
             editingId = null;
             render();
+        } catch (error) {
+            console.error('Error updating todo:', error);
+            alert('Could not update todo. Please try again.');
+        }
+    }
+
+    // ── Render ──
+
+    function render() {
+        if (todos.length === 0) {
+            todoListEl.innerHTML = `<div class="empty-message">✨ No todos yet. Add one above!</div>`;
+            counterEl.textContent = '0 items';
+            return;
         }
 
-        // ── Helper: Escape HTML ──
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // ── Event Listeners ──
-        addBtn.addEventListener('click', addTodo);
-        todoInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addTodo();
-            }
+        let html = '';
+        todos.forEach(todo => {
+            const isEditing = (editingId === todo.id);
+            const safeText = escapeHtml(todo.text);
+            html += `
+                <div class="todo-item" data-id="${todo.id}">
+                    <span class="todo-text ${isEditing ? 'editing' : ''}">${safeText}</span>
+                    <input type="text" class="todo-edit-input ${isEditing ? 'active' : ''}" value="${safeText}" data-id="${todo.id}" />
+                    <div class="todo-actions">
+                        ${isEditing ? `
+                            <button class="btn-save" data-id="${todo.id}"><i class="fas fa-check"></i> Save</button>
+                            <button class="btn-cancel" data-id="${todo.id}"><i class="fas fa-times"></i></button>
+                        ` : `
+                            <button class="btn-edit" data-id="${todo.id}"><i class="fas fa-pen"></i></button>
+                            <button class="btn-delete" data-id="${todo.id}"><i class="fas fa-trash"></i></button>
+                        `}
+                    </div>
+                </div>
+            `;
         });
 
-        // ── Initial Load ──
-        loadTodos();
-    </script>
+        todoListEl.innerHTML = html;
+        counterEl.textContent = `${todos.length} item${todos.length !== 1 ? 's' : ''}`;
+
+        // ── Attach event listeners ──
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                deleteTodo(id);
+            });
+        });
+
+        document.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                startEditing(id);
+            });
+        });
+
+        document.querySelectorAll('.btn-save').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = parseInt(btn.dataset.id);
+                const input = document.querySelector(`.todo-edit-input[data-id="${id}"]`);
+                if (input) {
+                    const newText = input.value.trim();
+                    if (newText) {
+                        saveEdit(id, newText);
+                    } else {
+                        alert('Todo text cannot be empty.');
+                    }
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-cancel').forEach(btn => {
+            btn.addEventListener('click', () => {
+                cancelEditing();
+            });
+        });
+
+        document.querySelectorAll('.todo-edit-input').forEach(input => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const id = parseInt(input.dataset.id);
+                    const newText = input.value.trim();
+                    if (newText) {
+                        saveEdit(id, newText);
+                    } else {
+                        alert('Todo text cannot be empty.');
+                    }
+                } else if (e.key === 'Escape') {
+                    cancelEditing();
+                }
+            });
+        });
+    }
+
+    function startEditing(id) {
+        editingId = id;
+        render();
+        const input = document.querySelector(`.todo-edit-input[data-id="${id}"]`);
+        if (input) {
+            input.focus();
+            input.select();
+        }
+    }
+
+    function cancelEditing() {
+        editingId = null;
+        render();
+    }
+
+    // ── Helper: Escape HTML ──
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ── Event Listeners ──
+    addBtn.addEventListener('click', addTodo);
+    todoInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTodo();
+        }
+    });
+
+    // ── Initial Load ──
+    loadTodos();
+</script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
