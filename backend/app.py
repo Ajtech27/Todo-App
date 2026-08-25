@@ -33,6 +33,14 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 @app.route('/')
+def home():
+    """Redirect to register page if not logged in, otherwise show index."""
+    if current_user.is_authenticated:
+        return render_template('index.html')
+    else:
+        return redirect(url_for('register'))
+
+@app.route('/index')
 def index():
     if current_user.is_authenticated:
         return render_template('index.html')
