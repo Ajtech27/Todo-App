@@ -1,6 +1,8 @@
 # 📝 Todo App (Full-Stack Version)
 
-A full-featured todo app with user authentication and a SQLite database.
+A full-featured todo app with user authentication and a Postgres database.
+
+**[Live Demo](https://todo-app-ksl3.onrender.com/login)**
 
 ## Features
 - ✅ User registration and login
@@ -13,7 +15,7 @@ A full-featured todo app with user authentication and a SQLite database.
 ## Tech Stack
 - **Backend**: Flask, Flask-SQLAlchemy, Flask-Login, Flask-Bcrypt
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap 5
-- **Database**: SQLite
+- **Database**: Postgres
 
 ## Run Locally
 
